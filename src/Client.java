@@ -37,6 +37,7 @@ public class Client {
 				}
 				
 				fromServer = in.readLine();
+				
 				String result = fromServer.replace("&", "\n");
 				if(result.charAt(result.length()-1) == '\n')
 				{

@@ -1,11 +1,20 @@
 package com.moedikra.tubes3;
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Server {
-	
+		
 	public static String getKey(String elemen)
 	{
 		return elemen.substring(1, elemen.indexOf(","));
@@ -22,6 +31,64 @@ public class Server {
 		return (m.get(key)!=null);
 	}
 	
+	public static void readFromFile(String fileName, HashMap<String, ArrayList<String>> m)
+	{
+		/* Reset hashmap */
+		m.clear();
+		
+		/* Fill hashmap with file data */
+		try (BufferedReader br = new BufferedReader(new FileReader(fileName)))
+		{
+			String line;
+ 
+			while ((line = br.readLine()) != null) {
+				String k = line;
+				int n_vals = Integer.parseInt(br.readLine());
+				ArrayList<String> vals = new ArrayList<String>();
+				for (int i = 0; i < n_vals; i++){
+					vals.add(br.readLine());
+				}
+				
+				m.put(k, vals);
+			}
+ 
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+	}
+	
+	public static void saveToFile(String fileName, HashMap<String, ArrayList<String>> m)
+	{
+		try
+        {
+			/* File database */
+			File file = new File(fileName);
+			
+			/* Hapus file original */
+			file.delete();
+			
+			PrintWriter pw = new PrintWriter(new FileWriter(file));
+
+			/* Print database ke file temporary */
+			for (Map.Entry<String, ArrayList<String>> entry : m.entrySet()){
+				String k = entry.getKey();
+				ArrayList<String> vals = entry.getValue();
+				
+				pw.println(k);
+				pw.println(vals.size());
+				for (String val : vals) {
+					pw.println(val);
+				}
+			}
+			
+			pw.close();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+	}
+	
     public static void main(String[] args) throws IOException {
 		
 		/*
@@ -29,6 +96,7 @@ public class Server {
 		*/
     	
         HashMap<String, ArrayList<String>> map = new HashMap<>();
+        String fileDB = "db.txt";
         
 		if (args.length != 1) {
             System.err.println("Usage: java KnockKnockServer <port number>");
@@ -43,6 +111,8 @@ public class Server {
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ) {
+        	readFromFile(fileDB, map); // init hashmap
+        	
             String inputLine; //data dari client
 
             while ((inputLine = in.readLine()) != null) 
@@ -62,6 +132,8 @@ public class Server {
 						{
 							map.put(nama_table, new ArrayList<String>());
 							out.println("tabel " + nama_table + " berhasil dibuat");
+							
+							saveToFile(fileDB, map);
 						}
 						else
 						{
@@ -154,6 +226,8 @@ public class Server {
 							
 							(map.get(nama_table)).add(0, elemen); //tambahkan elemen ke ArrayList table
 							out.println(elemen + " berhasil ditambahkan");
+							
+							saveToFile(fileDB, map);
 						}
 					}
 				}
