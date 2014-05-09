@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
-	public final static int N_SERVER = 1;
-	public final static String[] serverHostNames = { "localhost" };
-	public final static int[] serverHostPorts = { 5020 };
+	public final static int N_SERVER = 2;
+	public final static String[] serverHostNames = { "192.168.1.6", "192.168.1.9" };
+	public final static int[] serverHostPorts = { 5020, 5040 };
 	
 	public static String getKey(String elemen)
 	{
@@ -108,6 +108,7 @@ public class Server {
         }
 
         int portNumber = Integer.parseInt(args[0]);        
+        ArrayList<ServerThread> servers = new ArrayList<ServerThread>();
         
         try ( 
             ServerSocket serverSocket = new ServerSocket(portNumber);
@@ -120,7 +121,7 @@ public class Server {
             String inputLine; //data dari client
 
             inputLine = in.readLine();
-            ArrayList<ServerThread> servers = new ArrayList<ServerThread>();
+            
             if (inputLine.equals("client")){
             	for (int i = 0; i < N_SERVER; i++){
                 	if (serverHostPorts[i] != portNumber){
@@ -257,6 +258,9 @@ public class Server {
 				}
             }
         } catch (IOException e) {
+        	for (ServerThread server : servers){
+        		server.doExit();
+        	}
             System.out.println("Exception caught when trying to listen on port "
                 + portNumber + " or listening for a connection");
             System.out.println(e.getMessage());
