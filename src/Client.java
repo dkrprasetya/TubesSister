@@ -22,7 +22,10 @@ public class Client {
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
             String fromServer;
             String fromUser;
-
+            
+            out.println("client");
+            System.out.println("Sending client message");
+            
             while (true) {
 				System.out.print("> ");
 				fromUser = stdIn.readLine();

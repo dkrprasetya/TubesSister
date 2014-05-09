@@ -14,7 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
-		
+	public final static int N_SERVER = 1;
+	public final static String[] serverHostNames = { "localhost" };
+	public final static int[] serverHostPorts = { 5020 };
+	
 	public static String getKey(String elemen)
 	{
 		return elemen.substring(1, elemen.indexOf(","));
@@ -89,6 +92,7 @@ public class Server {
         }
 	}
 	
+	
     public static void main(String[] args) throws IOException {
 		
 		/*
@@ -103,8 +107,8 @@ public class Server {
             System.exit(1);
         }
 
-        int portNumber = Integer.parseInt(args[0]);
-
+        int portNumber = Integer.parseInt(args[0]);        
+        
         try ( 
             ServerSocket serverSocket = new ServerSocket(portNumber);
             Socket clientSocket = serverSocket.accept();
@@ -115,6 +119,18 @@ public class Server {
         	
             String inputLine; //data dari client
 
+            inputLine = in.readLine();
+            ArrayList<ServerThread> servers = new ArrayList<ServerThread>();
+            if (inputLine.equals("client")){
+            	for (int i = 0; i < N_SERVER; i++){
+                	if (serverHostPorts[i] != portNumber){
+                		ServerThread serverThread = new ServerThread(serverHostNames[i], serverHostPorts[i]);
+                		serverThread.start();
+                		servers.add(serverThread);
+                	}
+                }
+            }
+            
             while ((inputLine = in.readLine()) != null) 
 			{
 				if(inputLine.contains("create table"))
@@ -196,6 +212,10 @@ public class Server {
 											tmp += elemen + "&";
 										}
 									}
+								}
+								
+								for (ServerThread server : servers){
+									tmp += server.doDisplay(nama_table);
 								}
 								out.println(tmp);
 							}
