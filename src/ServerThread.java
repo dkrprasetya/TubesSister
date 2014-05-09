@@ -8,50 +8,41 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class ServerThread extends Thread {
-	
-	private static final int MODE_IDLE = 0;
-	private static final int MODE_DISPLAY = 1;
-	private static final int MODE_INSERT = 2;
-	
+		
 	private final String hostName;
 	private final int portNumber;
-	private String table;
-	private String key;
-	private String val;
-	
-	private int currentMode;	
 	
 	private String result;
 	
-	private boolean isExit;	
+	private boolean finished;	
+	
+	private PrintWriter out;
+	private BufferedReader in;
 	
 	public ServerThread(String hostName, int portNumber) {
 		super();
 		
 		this.hostName = hostName;
 		this.portNumber = portNumber;
-		currentMode = MODE_IDLE;
-		isExit = false;
+		finished = false;
 	}
 	
-	public String doDisplay(String table){
-		this.table = table;
-		currentMode = MODE_DISPLAY;
-		while (currentMode == MODE_DISPLAY){};
-		return result;
+	public void doCreate(String table) throws IOException{
+		out.println("create table " + table);
+		in.readLine();
+	}
+	
+	public String doDisplay(String table) throws IOException {
+		out.println("display " + table);		
+		return in.readLine();
 	}
 	
 	public String doInsert(String table, String key, String val){
-		this.table = table;
-		this.key = key;
-		this.val = val;
-		currentMode = MODE_INSERT;
-		while (currentMode == MODE_INSERT){};
 		return result;
 	}
 	
 	public void doExit(){
-		isExit = true;
+		finished = true;
 	}
 	
 	public void run(){
@@ -60,25 +51,10 @@ public class ServerThread extends Thread {
 	            PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true);
 	            BufferedReader in = new BufferedReader(new InputStreamReader(kkSocket.getInputStream())); //ini nerima data dari server, utk fetch-nya in.readLine()
 	        ) {
+			this.out = out;
+			this.in = in;
 				out.println("server");
-			
-	            while (true) {
-					
-	            	while ((currentMode == MODE_IDLE) && (!isExit)){}
-	            	
-					if (isExit) break; // exit
-	            	
-	            	if (currentMode == MODE_DISPLAY){
-		            	out.println("display " + table);	
-	            	}
-	            	else // MODE_INSERT
-	            	{
-	            		out.println("insert " + table + " " + key + " " + val);
-	            	}
-	            	
-	            	result = in.readLine();			
-	            	currentMode = MODE_IDLE;
-	            }
+	            while (!finished) {}
 	        } catch (UnknownHostException e) {
 	            System.err.println("Don't know about host " + hostName);
 	            System.exit(1);

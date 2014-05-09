@@ -1,6 +1,7 @@
 package com.moedikra.tubes3;
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 
 public class Client {
     public static void main(String[] args) throws IOException {  
@@ -24,7 +25,6 @@ public class Client {
             String fromUser;
             
             out.println("client");
-            System.out.println("Sending client message");
             
             while (true) {
 				System.out.print("> ");
@@ -41,12 +41,15 @@ public class Client {
 				
 				fromServer = in.readLine();
 				
-				String result = fromServer.replace("&", "\n");
-				if(result.charAt(result.length()-1) == '\n')
-				{
-					result = result.substring(0, result.length()-1);
+				if (fromServer.equals("")){
+					System.out.println("tidak ada data pada tabel");
+				} else {
+					String[] result = fromServer.split("&");
+					Arrays.sort(result);
+					for (String s : result){
+						System.out.println(s);
+					}
 				}
-				System.out.println(result);
             }
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host " + hostName);

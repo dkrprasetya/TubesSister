@@ -1,4 +1,5 @@
 package com.moedikra.tubes3;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -15,8 +16,8 @@ import java.util.Map;
 
 public class Server {
 	public final static int N_SERVER = 2;
-	public final static String[] serverHostNames = { "192.168.1.6", "192.168.1.9" };
-	public final static int[] serverHostPorts = { 5020, 5040 };
+	public final static String[] serverHostNames = { "192.168.1.9", "192.168.1.6" };
+	public final static int[] serverHostPorts = { 5040, 5020 };
 	
 	public static String getKey(String elemen)
 	{
@@ -106,7 +107,7 @@ public class Server {
             System.err.println("Usage: java KnockKnockServer <port number>");
             System.exit(1);
         }
-
+		
         int portNumber = Integer.parseInt(args[0]);        
         ArrayList<ServerThread> servers = new ArrayList<ServerThread>();
         
@@ -150,6 +151,10 @@ public class Server {
 							map.put(nama_table, new ArrayList<String>());
 							out.println("tabel " + nama_table + " berhasil dibuat");
 							
+							for (ServerThread server : servers){
+								server.doCreate(nama_table);
+							}
+							
 							saveToFile(fileDB, map);
 						}
 						else
@@ -174,52 +179,29 @@ public class Server {
 						}
 						else
 						{
-							ArrayList<String> ListValue = map.get(nama_table);
+							String tmp = "";
 							
-							if(ListValue.isEmpty())
+							ArrayList<String> KeyList = new ArrayList<>();
+							for(String elemen: (map.get(nama_table)))
 							{
-								out.println("tidak ada data pada tabel ini");
-							}
-							else
-							{
-								String tmp = "";
 								/* 
-									ini fungsi tambahan untuk menampilkan seluruh 
-									data yang ada di memori. displayall pasti
-									contains display kan? :D
+									Karena elemen ditambahkan secara LIFO
+									jadi elemen teratas pasti yang paling baru
+									jadi cukup dicari si elemen dengan key ini
+									pernah muncul atau enggak.
 								*/
-								if(inputLine.contains("displayall")) 
-								{
-									for(String elemen: ListValue)
-									{
-										tmp+=elemen + "&";
-									}
-								}
-								else
-								{
-									ArrayList<String> KeyList = new ArrayList<>();
-									for(String elemen: (map.get(nama_table)))
-									{
-										/* 
-											Karena elemen ditambahkan secara LIFO
-											jadi elemen teratas pasti yang paling baru
-											jadi cukup dicari si elemen dengan key ini
-											pernah muncul atau enggak.
-										*/
-										
-										if(!KeyList.contains(getKey(elemen)))
-										{
-											KeyList.add(0, getKey(elemen));
-											tmp += elemen + "&";
-										}
-									}
-								}
 								
-								for (ServerThread server : servers){
-									tmp += server.doDisplay(nama_table);
+								if(!KeyList.contains(getKey(elemen)))
+								{
+									KeyList.add(0, getKey(elemen));
+									tmp += elemen + "&";
 								}
-								out.println(tmp);
 							}
+							
+							for (ServerThread server : servers){
+								tmp += server.doDisplay(nama_table);
+							}
+							out.println(tmp);
 						}
 					}
 				}
@@ -264,6 +246,7 @@ public class Server {
             System.out.println("Exception caught when trying to listen on port "
                 + portNumber + " or listening for a connection");
             System.out.println(e.getMessage());
+            System.exit(0);
         }
     }
 }
