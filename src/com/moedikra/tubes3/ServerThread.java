@@ -7,12 +7,13 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+/**
+ * Thread untuk listening server sebagai "klien" untuk server teman.
+ */
 public class ServerThread extends Thread {
 		
 	private final String hostName;
 	private final int portNumber;
-	
-	private String result;
 	
 	private boolean finished;	
 	
@@ -37,8 +38,9 @@ public class ServerThread extends Thread {
 		return in.readLine();
 	}
 	
-	public String doInsert(String table, String key, String val){
-		return result;
+	public void doInsert(String table, String key, String val) throws IOException {
+		out.println("create table " + table);
+		in.readLine();
 	}
 	
 	public void doExit(){

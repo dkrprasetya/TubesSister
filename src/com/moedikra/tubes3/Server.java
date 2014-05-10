@@ -14,9 +14,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Server yang melakukan pemrosesan request dan melakukan penyimpanan data.
+ * Menggunakan ServerThread untuk menjadi "klien" bagi server lain.
+ */
 public class Server {
+	
 	public final static int N_SERVER = 2;
-	public final static String[] serverHostNames = { "192.168.1.9", "192.168.1.6" };
+	public final static String[] serverHostNames = { "192.168.1.18", "192.168.1.17" };
 	public final static int[] serverHostPorts = { 5040, 5020 };
 	
 	public static String getKey(String elemen)
@@ -215,14 +220,20 @@ public class Server {
 					else
 					{
 						String nama_table = parts[1];
+						String key = parts[2];
+						String value = parts[3];
+						for (ServerThread server : servers){
+							int hash = key.hashCode();
+							if (hash % servers.size() == servers.indexOf(server)) {
+								server.doInsert(nama_table, key, value);
+							}
+						}
 						if(!checkKeyExistInMap(map, nama_table))
 						{
 							out.println("tabel " + nama_table + " tidak ada");
 						}
 						else
 						{
-							String key = parts[2];
-							String value = parts[3];
 							String timestamp = getCurrentTimeStamp();
 							
 							String elemen = "<" + key + ", " + value + ", " + timestamp + ">";
