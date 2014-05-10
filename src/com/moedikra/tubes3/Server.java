@@ -20,9 +20,17 @@ import java.util.Map;
  */
 public class Server {
 	
+	// server uji
+	public final static int N_SERVER = 4;
+	public final static String[] serverHostNames = { "167.205.33.194", "167.205.33.196", "167.205.33.197", "167.205.33.220" };
+	public final static int[] serverHostPorts = { 5000, 5020, 5040, 5060 };
+	
+	/*
+	//server lokal
 	public final static int N_SERVER = 2;
 	public final static String[] serverHostNames = { "192.168.1.18", "192.168.1.17" };
 	public final static int[] serverHostPorts = { 5040, 5020 };
+	*/
 	
 	public static String getKey(String elemen)
 	{
@@ -49,7 +57,7 @@ public class Server {
 		try (BufferedReader br = new BufferedReader(new FileReader(fileName)))
 		{
 			String line;
- 
+
 			while ((line = br.readLine()) != null) {
 				String k = line;
 				int n_vals = Integer.parseInt(br.readLine());
